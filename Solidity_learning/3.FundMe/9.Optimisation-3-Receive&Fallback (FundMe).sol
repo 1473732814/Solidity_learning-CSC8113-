@@ -1,36 +1,37 @@
 // SPDX-License-Identifier: MIT
 
 
-// Library
-// Libraries are similar to contracts, but you can't declare any state variable and you can't send ether.
-// A library is embedded into the contract if all library functions are internal.
-// Otherwise the library must be deployed and then linked before the contract is deployed.
+// Receive & Fallbacks :
+//https://docs.soliditylang.org/en/v0.8.11/contracts.html#special-functions
+//Use Receive & Fallbacks to save gas.
 
 pragma solidity ^0.8.7;
 
 import "./PriceConverter.sol";
 
-// import "./AggregatorV3Interface.sol"
+error NotOwner();
 
 contract FundMe {
 
     using PriceConverter for uint256;
-    uint256 public minimumUsd = 50 * 1e18;
+
+    uint256 public constant  MINIMUM_USD = 50 * 1e18;
 
     address[] public funders;
     mapping(address => uint256) public addressToAmountFunded;
 
-    address public owner;
 
-    //Constructors : Creating a contract will be called once immediately
+    address public  immutable  OWNER;
+
+
     constructor(){
-        owner = msg.sender;
+        OWNER = msg.sender;
     }
 
 
     function fund() public  payable {
-        // msg.value.getConversionRate();
-        require(msg.value.getConversionRate() >= minimumUsd,"Didn't send enough!"); // 1e18 == 1 * 10 * 18 == 1000000000000000000 wei
+
+        require(msg.value.getConversionRate() >= MINIMUM_USD,"Didn't send enough!"); // 1e18 == 1 * 10 * 18 == 1000000000000000000 wei
 
         funders.push(msg.sender);
         addressToAmountFunded[msg.sender] = msg.value;
@@ -40,9 +41,7 @@ contract FundMe {
     
     // Withdraw funds 
     function withdraw() public onlyOwner{
-        //Ensure that the withdraw function can only be called by the contract owner ----- BY   modifier
-
-        require(msg.sender == owner,"Sender is not owner!!");
+        require(msg.sender == OWNER,"Sender is not owner!!");
         //for loop
         for(uint256 i = 0; i < funders.length; i ++ ){
 
@@ -60,9 +59,14 @@ contract FundMe {
 
     }
 
+    // Modifier
     modifier onlyOwner {
-        require(msg.sender == owner,"Sender is not owner!!");
-        _; //Underlined code to run the rest of the code
+        //require(msg.sender == OWNER,"Sender is not owner!!");
+
+        if(msg.sender != OWNER){
+            revert  NotOwner();
+        }
+        _; 
     }
     
     
