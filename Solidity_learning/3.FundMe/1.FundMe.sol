@@ -12,6 +12,7 @@ import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
 contract FundMe {
 
+    // Set a minimum funding value in USD
     uint256 public minimumUsd = 50 * 1e18;
 
     address[] public funders;
