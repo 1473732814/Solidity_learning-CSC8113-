@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 
 
-// Receive & Fallbacks :
-//https://docs.soliditylang.org/en/v0.8.11/contracts.html#special-functions
-//Use Receive & Fallbacks to save gas.
+// Stroage :
+//https://github.com/crytic/evm-opcodes
+//Use Storage Optimisation to save gas.
 
 pragma solidity ^0.8.7;
 
@@ -39,13 +39,35 @@ contract FundMe {
     }
 
     
-    // Withdraw funds 
-    function withdraw() public onlyOwner{
-        require(msg.sender == OWNER,"Sender is not owner!!");
-        //for loop
-        for(uint256 i = 0; i < funders.length; i ++ ){
+    // // Withdraw funds 
+    // function withdraw() public onlyOwner{
+    //     require(msg.sender == OWNER,"Sender is not owner!!");
+    //     //for loop
+    //     for(uint256 i = 0; i < funders.length; i ++ ){
 
-           address funder =  funders[i];
+    //        address funder =  funders[i];
+    //        addressToAmountFunded[funder] = 0 ;
+    //     }
+    //     // reset the arry
+    //     funders = new address[](0);
+    //     // actually withdraw the funds
+
+    //     // Recommended call
+    //     //call : return  bool or bytes , Using "require" roll backe 
+    //     (bool callSuccess, ) = payable(msg.sender).call{value: address(this).balance}("");
+    //     require(callSuccess,"Call failed");
+
+    // }
+
+    // cheaper Withdraw funds 
+    function cheaperWithdraw() public onlyOwner{
+        require(msg.sender == OWNER,"Sender is not owner!!");
+        
+        address[] memory newfunders = funders;
+        //for loop
+        for(uint256 i = 0; i < newfunders.length; i ++ ){
+
+           address funder =  newfunders[i];
            addressToAmountFunded[funder] = 0 ;
         }
         // reset the arry
@@ -56,7 +78,6 @@ contract FundMe {
         //call : return  bool or bytes , Using "require" roll backe 
         (bool callSuccess, ) = payable(msg.sender).call{value: address(this).balance}("");
         require(callSuccess,"Call failed");
-
     }
 
     // Modifier
